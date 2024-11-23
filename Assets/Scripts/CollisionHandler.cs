@@ -1,6 +1,7 @@
 using System;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 public class CollisionHandler : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class CollisionHandler : MonoBehaviour
     [SerializeField] AudioClip successSound;
     [SerializeField] ParticleSystem explosionParticles;
     [SerializeField] ParticleSystem successParticles;
+    [SerializeField] AudioClip disableBoxColliderSound;
 
 
     bool isControllable = true;
@@ -17,6 +19,13 @@ public class CollisionHandler : MonoBehaviour
     private void Start() {
         audioSource = GetComponent<AudioSource>();
     }
+
+    void Update()
+    {
+        RespondToDebugKeys();
+    }
+    
+
     void OnCollisionEnter(Collision other) 
     {
         if (!isControllable) { return; }
@@ -42,12 +51,28 @@ public class CollisionHandler : MonoBehaviour
         
     }
 
+    private void RespondToDebugKeys()
+    {
+        if (Keyboard.current.lKey.isPressed)
+        {
+            Debug.Log("PRESSING LLLLLLL");
+            NextLevel();
+        }
+        else if (Keyboard.current.cKey.wasPressedThisFrame)
+        {
+            Debug.Log("disable box collider");
+            BoxCollider immune = GetComponent<BoxCollider>();
+            audioSource.PlayOneShot(disableBoxColliderSound);
+            immune.enabled = !immune.enabled;
+        }
+    }
+
     void StartCompleteSequence()
     {
         audioSource.Stop();
         PlayFinishSound();
         DisableMovement();
-        Invoke("CompleteGame", 2f);
+        Invoke("NextLevel", 2f);
     }
 
     void PlayFinishSound()
@@ -88,7 +113,15 @@ public class CollisionHandler : MonoBehaviour
     {
         DisableMovement();
         int nextScene = SceneManager.GetActiveScene().buildIndex + 1;
-        SceneManager.LoadScene(nextScene);
+        if (nextScene != SceneManager.sceneCountInBuildSettings)
+        {
+            SceneManager.LoadScene(nextScene);
+        }
+        else 
+        {
+            nextScene = 0;
+            SceneManager.LoadScene(nextScene);
+        }
     }
 
     void ReloadLevel()

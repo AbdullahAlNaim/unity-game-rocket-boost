@@ -37,14 +37,7 @@ public class Movement : MonoBehaviour
     {
         if (thrust.IsPressed() == true)
         {
-            centerThrustParticles.Play();
-            
-            rb.AddRelativeForce(Vector3.up * thrustStrength * Time.fixedDeltaTime);
-            
-            if (!audioSource.isPlaying)
-            {
-                audioSource.PlayOneShot(engineSound);
-            }
+            StartThrusting();
         }
         else 
         {
@@ -52,6 +45,17 @@ public class Movement : MonoBehaviour
         }
     }
 
+    private void StartThrusting()
+    {
+        centerThrustParticles.Play();
+
+        rb.AddRelativeForce(Vector3.up * thrustStrength * Time.fixedDeltaTime);
+
+        if (!audioSource.isPlaying)
+        {
+            audioSource.PlayOneShot(engineSound);
+        }
+    }
 
     void ProcessRotation()
     {
